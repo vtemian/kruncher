@@ -6,7 +6,6 @@ from raven.contrib.flask import Sentry
 from raven.middleware import Sentry as SentryMiddleware
 
 from flask import Flask, url_for
-from flask.ext.classy import FlaskView
 
 from krunchr.vendors.rethinkdb import db
 
@@ -29,6 +28,7 @@ def create_app(config=None):
   db.init_app(app)
 
   app = register_endpoints(app)
+  print app
 
   @app.errorhandler(404)
   def page_not_found(e):
@@ -80,7 +80,6 @@ def register_endpoints(app):
   for module in ENDPOINTS:
     module = import_module('%s.api' % module)
 
-  for endpoint in FlaskView.__subclasses__():
-    endpoint.register(app, route_prefix='/v1/krunchr')
+    app.register_blueprint(module.endpoint, url_prefix='/v1/')
 
   return app
