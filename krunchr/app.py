@@ -28,7 +28,6 @@ def create_app(config=None):
   db.init_app(app)
 
   app = register_endpoints(app)
-  print app
 
   @app.errorhandler(404)
   def page_not_found(e):
