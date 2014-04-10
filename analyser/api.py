@@ -1,12 +1,18 @@
 import os
-import requests
+import json
 
-from flask import Blueprint
+import requests
+import rethinkdb as r
+
+from flask import Blueprint, current_app
 
 from utils.decorators import validate, require
 from utils.validators import validate_url
 
+from krunchr.vendors.rethinkdb import db
+
 from .parser import Parser
+from .tasks import get_file
 
 endpoint = Blueprint('analyse_url', __name__)
 
@@ -27,6 +33,10 @@ def analyse_url(url):
     if fields:
       break
 
-  print fields
-
-  return url
+  task_id = get_file.delay(url, current_app.config['DISCO_FILES']).task_id
+  r.table('jobs').insert({
+      'url': url,
+      'task_id': task_id,
+      'state': 'starting'
+  }).run(db.conn)
+  return json.dumps(fields)
