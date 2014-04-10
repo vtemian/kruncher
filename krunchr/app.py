@@ -8,7 +8,7 @@ from raven.middleware import Sentry as SentryMiddleware
 from flask import Flask, url_for
 from flask.ext.classy import FlaskView
 
-from krunchr.vendords.rethinkdb import db
+from krunchr.vendors.rethinkdb import db
 
 ENDPOINTS = ['analyser']
 cache = []
@@ -81,6 +81,6 @@ def register_endpoints(app):
     module = import_module('%s.api' % module)
 
   for endpoint in FlaskView.__subclasses__():
-    app.register(app, url_prefix='/v1/krunchr')
+    endpoint.register(app, route_prefix='/v1/krunchr')
 
   return app
