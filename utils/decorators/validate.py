@@ -7,7 +7,7 @@ from utils.exceptions import HttpBadRequest
 from utils.validators import ValidationError
 
 
-class validation(object):
+class validate(object):
 
   def __init__(self, rules):
     self.rules = rules
