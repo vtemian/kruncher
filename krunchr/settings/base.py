@@ -5,7 +5,12 @@ HOSTNAME_SHORT = HOSTNAME.split('.')[0]
 
 APPLICATION_ROOT = '/v1/krunchr'
 
-DEBUG = False
+DEBUG = True
+
+RETHINKDB_HOST = 'localhost'
+RETHINKDB_PORT = 28015
+RETHINKDB_AUTH = ''
+RETHINKDB_DB = 'visualizer'
 
 BROKER_URL = 'redis://localhost:6379'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379'
