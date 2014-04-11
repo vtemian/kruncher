@@ -6,6 +6,7 @@ class Parser(object):
         'csv_tab': lambda chunk: chunk.split("\t"),
         'txt': lambda chunk: chunk.split(" ")
     }
+    self.format = None
 
   def __call__(self, chunk):
     fields = self.PARSERS[self.ext](chunk)
@@ -14,6 +15,7 @@ class Parser(object):
       for key in self.PARSERS:
         fields = self.PARSERS[key]
         if fields:
+          self.format = key
           break
 
     return fields

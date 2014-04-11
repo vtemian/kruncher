@@ -27,9 +27,9 @@ def get_fields(self, url, ds_id):
       'id': ds_id,
   }).update({
       'fields': fields,
+      'format': parse.format,
       'state': 'download_file'
   }).run(db)
-  print 'asd'
 
   return {
       'url': url,
