@@ -82,8 +82,7 @@ def push_data(self, args):
 
   # Push data to cluster
   command = 'ddfs push data:%s ./xa?' % ds_id
-  push_data = Popen(command.split(' '), stdout=PIPE)
-  print push_data.communicate()
+  os.system(command)
 
   r.table('datasets').filter({
       'id': ds_id,
