@@ -18,12 +18,12 @@ endpoint = Blueprint('analyse_url', __name__)
 
 
 @endpoint.route('analyse/', methods=['POST'])
-@require('url')
+@require('url', 'uuid')
 @validate({
     'url': validate_url,
     'uuid': validate_uuid
 })
-def analyse_url(url):
+def analyse_url(url, uuid):
   name, ext = os.path.splitext(url)
   parse = Parser(ext=ext[1:])
 

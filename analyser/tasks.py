@@ -11,6 +11,7 @@ from krunchr.vendors.celery import celery, db, config
 
 @celery.task(bind=True)
 def get_file(self, url, path, uuid):
+  print uuid
   name, ext = os.path.splitext(url)
   name = str(int(time.time()))
 
@@ -27,11 +28,17 @@ def get_file(self, url, path, uuid):
       'finished_at': r.now()
   }).run(db)
 
-  return path, uuid
+  return {
+      'path': path,
+      'uuid': uuid,
+  }
 
 
 @celery.task(bind=True)
-def push_data(self, path, uuid):
+def push_data(self, args):
+  path = args['path']
+  uuid = args['uuid']
+
   filename = os.path.basename(path)
   tmp_dir = str(int(time.time()))
 
@@ -41,10 +48,11 @@ def push_data(self, path, uuid):
   copy2(filename, "%s/%s" % (tmp_dir, filename))
   os.chdir(tmp_dir)
 
-  split_process = Popen(['split', '-n', config.DISCO_NODES, path],
-                        stdout=PIPE)
+  command = 'split -n %s %s' % (config.DISCO_NODES, path)
+  split_process = Popen(command.split(' '), stdout=PIPE)
   split_process.communicate()
 
   # Push data to cluster
   command = 'ddfs push data:%s' % uuid
-  push_data = Popen(command.split(''))
+  push_data = Popen(command.split(' '), stdout=PIPE)
+  push_data.communicate()
