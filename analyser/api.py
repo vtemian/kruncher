@@ -12,7 +12,7 @@ from utils.validators import validate_url
 from krunchr.vendors.rethinkdb import db
 
 from .parser import Parser
-from .tasks import get_file
+from .tasks import get_file, push_data
 
 endpoint = Blueprint('analyse_url', __name__)
 
@@ -33,7 +33,8 @@ def analyse_url(url):
     if fields:
       break
 
-  task_id = get_file.delay(url, current_app.config['DISCO_FILES']).task_id
+  task_id = (get_file.s(url, current_app.config['DISCO_FILES']) |
+             push_data.s()).apply_async().task_id
   r.table('jobs').insert({
       'url': url,
       'task_id': task_id,
