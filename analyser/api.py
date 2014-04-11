@@ -1,18 +1,11 @@
-import os
 import json
-
-import requests
-import rethinkdb as r
 
 from flask import Blueprint, current_app
 
 from utils.decorators import validate, require
 from utils.validators import validate_url, validate_uuid
 
-from krunchr.vendors.rethinkdb import db
-
-from .parser import Parser
-from .tasks import get_file, push_data
+from .tasks import get_file, push_data, get_fields
 
 endpoint = Blueprint('analyse_url', __name__)
 
@@ -24,22 +17,10 @@ endpoint = Blueprint('analyse_url', __name__)
     'ds_id': validate_uuid
 })
 def analyse_url(url, ds_id):
-  name, ext = os.path.splitext(url)
-  parse = Parser(ext=ext[1:])
+  (get_fields.s(url, ds_id) |
+   get_file.s(current_app.config['DISCO_FILES']) |
+   push_data.s()).apply_async()
 
-  response = requests.get(url, stream=True)
-  fields = []
-  for chunk in response.iter_lines(1024):
-    fields = parse(chunk)
-    if fields:
-      break
-
-  task_id = (get_file.s(url, current_app.config['DISCO_FILES'], ds_id) |
-             push_data.s()).apply_async().task_id
-  r.table('jobs').insert({
-      'url': url,
-      'task_id': task_id,
-      'state': 'starting',
-      'started_at': r.now()
-  }).run(db.conn)
-  return json.dumps(fields)
+  return json.dumps({
+      'status': 'success'
+  })

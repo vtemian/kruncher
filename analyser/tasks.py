@@ -8,10 +8,39 @@ import requests
 
 from krunchr.vendors.celery import celery, db, config
 
+from .parser import Parser
+
 
 @celery.task(bind=True)
-def get_file(self, url, path, uuid):
-  print uuid
+def get_fields(self, url, ds_id):
+  name, ext = os.path.splitext(url)
+  parse = Parser(ext=ext[1:])
+
+  response = requests.get(url, stream=True)
+  fields = []
+  for chunk in response.iter_lines(1024):
+    fields = parse(chunk)
+    if fields:
+      break
+
+  r.table('datasets').filter({
+      'id': ds_id,
+  }).update({
+      'fields': fields,
+      'state': 'download_file'
+  }).run(db)
+  print 'asd'
+
+  return {
+      'url': url,
+      'ds_id': ds_id
+  }
+
+
+@celery.task(bind=True)
+def get_file(self, args, path):
+  url = args['url']
+  ds_id = args['ds_id']
   name, ext = os.path.splitext(url)
   name = str(int(time.time()))
 
@@ -21,23 +50,22 @@ def get_file(self, url, path, uuid):
   with open(path, 'w') as f:
     f.write(response.content)
 
-  r.table('jobs').filter({
-      'task_id': self.request.id
+  r.table('datasets').filter({
+      'id': ds_id,
   }).update({
-      'state': 'done',
-      'finished_at': r.now()
+      'state': 'push_data'
   }).run(db)
 
   return {
       'path': path,
-      'uuid': uuid,
+      'ds_id': ds_id,
   }
 
 
 @celery.task(bind=True)
 def push_data(self, args):
   path = args['path']
-  uuid = args['uuid']
+  ds_id = args['ds_id']
 
   filename = os.path.basename(path)
   tmp_dir = str(int(time.time()))
@@ -53,6 +81,12 @@ def push_data(self, args):
   split_process.communicate()
 
   # Push data to cluster
-  command = 'ddfs push data:%s' % uuid
+  command = 'ddfs push data:%s' % ds_id
   push_data = Popen(command.split(' '), stdout=PIPE)
   push_data.communicate()
+
+  r.table('datasets').filter({
+      'id': ds_id,
+  }).update({
+      'state': 'ready_for_crunching'
+  }).run(db)
