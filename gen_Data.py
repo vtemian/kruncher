@@ -4,7 +4,7 @@ import random
 NAMES = ['Vlad', 'Bogdan', 'Andrei', 'Cristi']
 
 with open('data.txt', 'w') as f:
-  head = 'Name,Income #1,Income #2,Spending #1,Spending #2'
+  head = 'Name,Income1,Income2,Spending1,Spending2'
   f.write(head + '\n')
   k = 0
   while k < 999:
