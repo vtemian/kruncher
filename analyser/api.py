@@ -38,6 +38,7 @@ def analyse_url(url):
   r.table('jobs').insert({
       'url': url,
       'task_id': task_id,
-      'state': 'starting'
+      'state': 'starting',
+      'started_at': r.now()
   }).run(db.conn)
   return json.dumps(fields)
