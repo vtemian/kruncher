@@ -7,7 +7,7 @@ import rethinkdb as r
 from flask import Blueprint, current_app
 
 from utils.decorators import validate, require
-from utils.validators import validate_url
+from utils.validators import validate_url, validate_uuid
 
 from krunchr.vendors.rethinkdb import db
 
@@ -20,7 +20,8 @@ endpoint = Blueprint('analyse_url', __name__)
 @endpoint.route('analyse/', methods=['POST'])
 @require('url')
 @validate({
-    'url': validate_url
+    'url': validate_url,
+    'uuid': validate_uuid
 })
 def analyse_url(url):
   name, ext = os.path.splitext(url)
@@ -33,7 +34,7 @@ def analyse_url(url):
     if fields:
       break
 
-  task_id = (get_file.s(url, current_app.config['DISCO_FILES']) |
+  task_id = (get_file.s(url, current_app.config['DISCO_FILES'], uuid) |
              push_data.s()).apply_async().task_id
   r.table('jobs').insert({
       'url': url,
