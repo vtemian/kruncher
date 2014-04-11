@@ -10,7 +10,7 @@ from krunchr.vendors.celery import celery, db, config
 
 
 @celery.task(bind=True)
-def get_file(self, url, path):
+def get_file(self, url, path, uuid):
   name, ext = os.path.splitext(url)
   name = str(int(time.time()))
 
@@ -27,14 +27,15 @@ def get_file(self, url, path):
       'finished_at': r.now()
   }).run(db)
 
-  return path
+  return path, uuid
 
 
 @celery.task(bind=True)
-def push_data(self, path):
+def push_data(self, path, uuid):
   filename = os.path.basename(path)
   tmp_dir = str(int(time.time()))
 
+  # Create temporary files
   os.chdir(config.DISCO_FILES)
   os.makedirs(tmp_dir)
   copy2(filename, "%s/%s" % (tmp_dir, filename))
@@ -42,4 +43,8 @@ def push_data(self, path):
 
   split_process = Popen(['split', '-n', config.DISCO_NODES, path],
                         stdout=PIPE)
-  print split_process.communicate()
+  split_process.communicate()
+
+  # Push data to cluster
+  command = 'ddfs push data:%s' % uuid
+  push_data = Popen(command.split(''))
