@@ -22,7 +22,10 @@ def get_file(self, url, path):
 
   r.table('jobs').filter({
       'task_id': self.request.id
-  }).update({'state': 'done'}).run(db)
+  }).update({
+      'state': 'done',
+      'finished_at': r.now()
+  }).run(db)
 
   return path
 
