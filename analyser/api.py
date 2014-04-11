@@ -18,12 +18,12 @@ endpoint = Blueprint('analyse_url', __name__)
 
 
 @endpoint.route('analyse/', methods=['POST'])
-@require('url', 'uuid')
+@require('url', 'ds_id')
 @validate({
     'url': validate_url,
-    'uuid': validate_uuid
+    'ds_id': validate_uuid
 })
-def analyse_url(url, uuid):
+def analyse_url(url, ds_id):
   name, ext = os.path.splitext(url)
   parse = Parser(ext=ext[1:])
 
@@ -34,7 +34,7 @@ def analyse_url(url, uuid):
     if fields:
       break
 
-  task_id = (get_file.s(url, current_app.config['DISCO_FILES'], uuid) |
+  task_id = (get_file.s(url, current_app.config['DISCO_FILES'], ds_id) |
              push_data.s()).apply_async().task_id
   r.table('jobs').insert({
       'url': url,
