@@ -15,5 +15,8 @@ def validate_url(url):
 
 
 def validate_uuid(uuid):
-  print uuid
   return uuid
+
+
+def simple_validation(val):
+  return val
