@@ -7,10 +7,10 @@ APPLICATION_ROOT = '/v1/krunchr'
 
 DEBUG = True
 
-RETHINKDB_HOST = 'localhost'
-RETHINKDB_PORT = 28015
+RETHINKDB_HOST = 'batman.krunchr.net'
+RETHINKDB_PORT = 28019
 RETHINKDB_AUTH = ''
-RETHINKDB_DB = 'visualizer'
+RETHINKDB_DB = 'krunchr'
 
 BROKER_URL = 'redis://localhost:6379'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379'
@@ -24,3 +24,4 @@ CELERYD_HIJACK_ROOT_LOGGER = False
 CELERY_IMPORTS = ('analyser.tasks',)
 
 DISCO_FILES = '/tmp'
+DISCO_NODES = '3'
