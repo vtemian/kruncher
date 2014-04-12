@@ -21,7 +21,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERYD_HIJACK_ROOT_LOGGER = False
 
-CELERY_IMPORTS = ('analyser.tasks', 'map.jobs.sum', 'utils.tasks.execute')
+CELERY_IMPORTS = ('analyser.tasks', 'utils.tasks.execute')
 
 DISCO_FILES = '/tmp'
 DISCO_NODES = '3'
