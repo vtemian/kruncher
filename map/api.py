@@ -20,5 +20,5 @@ def map(fields, operation, ds_id):
   os.system("python map/jobs/sum.py")
   return json.dumps({
       'status': 'success',
-      'message': json.dumps(lines)
+      'message': json.dumps([])
   })
