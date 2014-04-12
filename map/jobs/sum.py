@@ -1,6 +1,8 @@
+import sys
 import rethinkdb as r
 from disco.core import Job
 import csv
+
 
 class GroupSum(Job):
   def __init__(self, group_by, fields, *args, **kwargs):
@@ -18,7 +20,6 @@ class GroupSum(Job):
       yield row
 
   def map(self, line, params):
-    "vlad,12,1,3,4"
     words = line
     total = 0
     result = []
@@ -54,14 +55,13 @@ class GroupSum(Job):
 if __name__ == "__main__":
   from sum import GroupSum
   db = r.connect(**{
-    'host': 'batman.krunchr.net',
-    'port': 28019,
-    'auth_key': '',
-    'db': 'krunchr'
+      'host': 'batman.krunchr.net',
+      'port': 28019,
+      'auth_key': '',
+      'db': 'krunchr'
   })
-  job = GroupSum(0, [1, 2])
-  #job.run(input=['data:10fc2f09-dbbd-4323-8c84-048596813482'])
-  job.run(input=['http://s3-eu-west-1.amazonaws.com/krunchr/input.csv'])
+  job = GroupSum(sys.argv[1], sys.argv[1:])
+  job.run(input=['data:%s' % sys.argv[0]])
 
   from disco.core import result_iterator
 

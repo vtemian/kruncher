@@ -17,7 +17,7 @@ endpoint = Blueprint('maps_jobs', __name__)
 })
 def map(fields, operation, ds_id):
   import os
-  os.system("python map/jobs/sum.py")
+  os.system("python map/jobs/sum.py %s 0 1 2" % ds_id)
   return json.dumps({
       'status': 'success',
       'message': json.dumps([])
