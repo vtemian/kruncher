@@ -60,11 +60,29 @@ if __name__ == '__main__':
       'auth_key': '',
       'db': 'krunchr'
   })
-  job = GroupSum(sys.argv[2], sys.argv[2:])
+  dataset = r.db("krunchr").table('datasets').get(sys.argv[1]).run(db)
+
+  fields = [str(dataset['fields'].index(field)) for field in sys.argv[2:]]
+  group_by = dataset['fields'].index(sys.argv[2])
+
+  job = GroupSum(group_by, fields)
   job.run(input=['data:%s' % sys.argv[1]])
 
   from disco.core import result_iterator
 
+  table_name = sys.argv[1].replace('-', '_')
+  try:
+    r.db("krunchr").table_create(table_name).run(db)
+  except:
+    pass
   lines = []
+  fields = dataset['fields']
+  fields.remove(sys.argv[2])
   for line in result_iterator(job.wait(show=True)):
-    lines.append(line)
+    for key in line[0]:
+      print key, line[0]
+      insert = {sys.argv[2]: key}
+      if len(line[0][key]) < len(fields):
+ 	continue
+      insert.update({field: line[0][key][fields.index(field)-1] for field in fields})
+      r.table(table_name).insert(insert).run(db)
