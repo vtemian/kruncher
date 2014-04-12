@@ -80,9 +80,10 @@ if __name__ == '__main__':
   fields.remove(sys.argv[2])
   for line in result_iterator(job.wait(show=True)):
     for key in line[0]:
-      print key, line[0]
       insert = {sys.argv[2]: key}
       if len(line[0][key]) < len(fields):
  	continue
       insert.update({field: line[0][key][fields.index(field)-1] for field in fields})
       r.table(table_name).insert(insert).run(db)
+
+  r.table('datasets').filter({'id': sys.argv[1]}).update({'ready': True}).run(db)
