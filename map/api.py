@@ -24,9 +24,9 @@ def map(fields, operation, ds_id, group_by):
   dataset = r.table('datasets').filter({
       'ds_id': ds_id
   }).run(db.conn)
-
-  fields = [dataset['fields'].index(field) for field in fields]
-  group_by = dataset['fields'].index(group_by)
+  for ds in dataset:
+    fields = [ds['fields'].index(field) for field in fields]
+    group_by = ds['fields'].index(group_by)
 
   command = "python map/jobs/sum.py %s %s %s" % (ds_id, group_by,
                                                  ' '.join(fields))
