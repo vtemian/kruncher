@@ -1,10 +1,13 @@
 import os
 import time
 from shutil import copy2
+import subprocess
+import time
 from subprocess import Popen, PIPE
 
 import rethinkdb as r
 import requests
+from disco.ddfs import DDFS  
 
 from krunchr.vendors.celery import celery, db, config
 
@@ -82,7 +85,9 @@ def push_data(self, args):
 
   # Push data to cluster
   command = 'ddfs push data:%s ./xa?' % ds_id
-  os.system(command)
+  d = DDFS('disco://localhost')
+  files = [("%s/%s/%s" % (config.DISCO_FILES, tmp_dir, filename), filename) for filename in os.listdir(".") if filename.startswith("xa")]
+  d.push('data:%s' % ds_id, files)
 
   r.table('datasets').filter({
       'id': ds_id,
