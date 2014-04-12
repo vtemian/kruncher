@@ -6,8 +6,8 @@ import csv
 
 class GroupSum(Job):
   def __init__(self, group_by, fields, *args, **kwargs):
-    self.group_by = group_by
-    self.fields = fields
+    self.group_by = int(group_by)
+    self.fields = map(int, fields)
 
     super(GroupSum, self).__init__(*args, **kwargs)
 
@@ -52,20 +52,18 @@ class GroupSum(Job):
             final[key][value] += line[value]
     out.add(final, "a")
 
-if __name__ == "__main__":
-  from sum import GroupSum
+def try_me(argv):
   db = r.connect(**{
       'host': 'batman.krunchr.net',
       'port': 28019,
       'auth_key': '',
       'db': 'krunchr'
   })
-  job = GroupSum(sys.argv[1], sys.argv[1:])
-  job.run(input=['data:%s' % sys.argv[0]])
+  job = GroupSum(argv[1], argv[1:])
+  job.run(input=['data:%s' % argv[0]])
 
   from disco.core import result_iterator
 
   lines = []
   for line in result_iterator(job.wait(show=True)):
     lines.append(line)
-  print lines

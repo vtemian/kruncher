@@ -9,7 +9,7 @@ from flask import Flask, url_for
 
 from krunchr.vendors.rethinkdb import db
 
-ENDPOINTS = ['analyser', 'map']
+ENDPOINTS = ['analyser', 'crunch']
 cache = []
 
 

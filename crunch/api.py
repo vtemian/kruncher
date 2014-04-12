@@ -8,6 +8,7 @@ from utils.validators import simple_validation, validate_uuid
 from utils.tasks import execute_async
 
 from krunchr.vendors.rethinkdb import db
+import crunch.jobs.add
 
 endpoint = Blueprint('maps_jobs', __name__)
 
@@ -21,17 +22,17 @@ endpoint = Blueprint('maps_jobs', __name__)
     'group_by': simple_validation,
 })
 def map(fields, operation, ds_id, group_by):
-  dataset = r.table('datasets').filter({
-      'ds_id': ds_id
-  }).run(db.conn)
-  for ds in dataset:
-    fields = [ds['fields'].index(field) for field in fields]
-    group_by = ds['fields'].index(group_by)
+  dataset = r.table('datasets').get(ds_id).run(db.conn)
 
-  command = "python map/jobs/sum.py %s %s %s" % (ds_id, group_by,
-                                                 ' '.join(fields))
-  execute_async.delay(command)
+  fields = [str(dataset['fields'].index(field)) for field in fields]
+  group_by = dataset['fields'].index(group_by)
+
+  command = "python sum.py %s %s %s" % (ds_id, group_by,
+				        ' '.join(fields))
+  #execute_async.delay(command)
+  crunch.jobs.add.try_me([ds_id, group_by] + fields)
 
   return json.dumps({
       'status': 'success',
+      'message': command,
   })
