@@ -52,15 +52,16 @@ class GroupSum(Job):
             final[key][value] += line[value]
     out.add(final, "a")
 
-def try_me(argv):
+if __name__ == '__main__':
+  from add import GroupSum
   db = r.connect(**{
       'host': 'batman.krunchr.net',
       'port': 28019,
       'auth_key': '',
       'db': 'krunchr'
   })
-  job = GroupSum(argv[1], argv[1:])
-  job.run(input=['data:%s' % argv[0]])
+  job = GroupSum(sys.argv[2], sys.argv[2:])
+  job.run(input=['data:%s' % sys.argv[1]])
 
   from disco.core import result_iterator
 
