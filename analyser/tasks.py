@@ -7,7 +7,7 @@ from subprocess import Popen, PIPE
 
 import rethinkdb as r
 import requests
-from disco.ddfs import DDFS  
+from disco.ddfs import DDFS
 
 from krunchr.vendors.celery import celery, db, config
 
@@ -31,7 +31,8 @@ def get_fields(self, url, ds_id):
   }).update({
       'fields': fields,
       'format': parse.format,
-      'state': 'download_file'
+      'state': 'download_file',
+      'ready': True
   }).run(db)
 
   return {
